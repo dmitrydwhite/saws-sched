@@ -28,7 +28,7 @@ function sButton(type, id) {
 
 function AppExecute(firebase) {
   // Initialize vars
-  var admins = ['KMuMoYvOnyWlVmikiTCmQnV7EN83'];
+  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
 
@@ -45,13 +45,25 @@ function AppExecute(firebase) {
     });
 
     markup += isAdmin ?
-      '<button class="add-days">OPEN MORE DAYS</button>' : '';
+      '<button id="add-days">OPEN MORE DAYS</button>' : '';
 
     document.getElementById('scheduler').innerHTML = markup;
+
+    document.getElementById('add-days').addEventListener('click', addMoreDays);
+  }
+
+  function addMoreDays(evt) {
+    var addDaysForm = document.createElement('form');
+
+    addDaysForm.innerHTML = '' +
+      '<label>Date or Date Range</label><input type="text"><button id="create-days">ADD</button>' +
+    '';
+
+    evt.currentTarget.insertAdjacentElement(addDaysForm);
   }
 
   function startApp() {
-    isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth().currentUser.uid) > -1; 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
+    isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth().currentUser.uid) > -1;
 
     scheduleDays.on('value', showDays);
   }
