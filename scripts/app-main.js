@@ -1,15 +1,30 @@
-function shelterDay(dayInfo) {
+function shelterDay(d) {
   var days = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var p = d.period || {};
 
   return '' +
-    '<div class="shelter-day>' +
-      '<div class="shelter-day-dow">' + days[dayInfo.getDay()] + '</div>' +
-      '<div class="shelter-day-date">' + dayInfo.getDate() + ' ' + months[dayInfo.getMonth()] + '</div>' +
-
+    '<div class="sd" data-id="' + d.id + '">' +
+      '<div class="sd-header">' +
+        '<div class="sd-dow">' + days[p.getDay()] + '</div>' +
+        '<div class="sd-date">' + months[p.getMonth()] + ' ' + p.getDate() + '</div>' +
+        '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
+      '</div>' +
+      '<div class="sd-staffing">' +
+        '<div class="sd-breakfast">Breakfast: ' + showName(d.brk) || sButton('brk', d.id) + '</div>' +
+        '<div class="sd-ev-lead">Evening Lead: ' + showName(d.evLead) || sButton('evLead', d.id) + '</div>' +
+        '<div class="sd-ev-second">Evening Second: ' + showName(d.evSecond) || sButton('evSecond', d.id) + '</div>' +
+        '<div class="sd-ov-lead">Overnight Lead: ' + showName(d.ovLead) || sButton('ovLead', d.id) + '</div>' +
+        '<div class="sd-ov-second">Overnight Second: ' + showName(d.ovSecond) || sButton('ovSecond', d.id) + '</div>' +
+      '</div>' +
     '</div>' +
   '';
 }
+
+function sButton(type, id) {
+  return '<button data-id= "' + id + '" class="sign-up" data-type="' + type + '">Sign Up</button>';
+}
+
 
 function AppExecute(firebase) {
   // Initialize vars
@@ -21,13 +36,24 @@ function AppExecute(firebase) {
 
 
   function showDays(dayz) {
-    alert('in showDays');
+    var markup = '';
+
+    dayz.forEach(function (sDay) {
+      var d = sDay.exportVal();
+
+      markup += d && shelterDay(d);
+    });
+
+    markup += isAdmin ?
+      '<button class="add-days">OPEN MORE DAYS</button>' : '';
+
+    document.getElementById('scheduler').innerHTML = markup;
   }
 
   function startApp() {
     isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth().currentUser.uid) > -1; 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
 
-    scheduleDays.on('value', showDays)
+    scheduleDays.on('value', showDays);
   }
 
   // Check the user state
