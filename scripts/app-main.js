@@ -59,7 +59,7 @@ function AppExecute(firebase) {
       '<label>Date or Date Range</label><input type="text"><button id="create-days">ADD</button>' +
     '';
 
-    evt.currentTarget.insertAdjacentElement(addDaysForm);
+    evt.currentTarget.insertAdjacentElement('beforebegin', addDaysForm);
   }
 
   function startApp() {
