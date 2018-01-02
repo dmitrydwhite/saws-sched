@@ -12,8 +12,22 @@ function shelterDay(dayInfo) {
 }
 
 function AppExecute(firebase) {
+  // Initialize vars
+  var admins = ['KMuMoYvOnyWlVmikiTCmQnV7EN83'];
+  var scheduleDays = firebase.database().ref('/scheduleDays/');
+  var isAdmin;
+
+
+
+
+  function showDays(dayz) {
+    alert('in showDays');
+  }
+
   function startApp() {
-    alert('app started');
+    isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth.currentUser.uid) > -1; 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
+
+    scheduleDays.on('value', showDays)
   }
 
   // Check the user state
