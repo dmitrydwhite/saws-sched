@@ -25,7 +25,7 @@ function AppExecute(firebase) {
   }
 
   function startApp() {
-    isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth.currentUser.uid) > -1; 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
+    isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth().currentUser.uid) > -1; 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
 
     scheduleDays.on('value', showDays)
   }
