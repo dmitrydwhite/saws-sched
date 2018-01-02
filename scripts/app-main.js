@@ -54,12 +54,30 @@ function AppExecute(firebase) {
 
   function addMoreDays(evt) {
     var addDaysForm = document.createElement('form');
+    var today = new Date();
+
+    evt.currentTarget.setAttribute('disabled', true);
 
     addDaysForm.innerHTML = '' +
-      '<label>Date or Date Range</label><input type="text"><button id="create-days">ADD</button>' +
+      '<label>Add a Date to Open</label><input type="date" ' +
+      'value="' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1) + '"' +
+      '><button id="create-days">ADD</button>' +
     '';
 
     evt.currentTarget.insertAdjacentElement('beforebegin', addDaysForm);
+
+    document.getElementById('create-days').addEventListener('click', addMoreOpenDays);
+  }
+
+  function addMoreOpenDays(evt) {
+    evt.preventDefault();
+
+    var nextOpen = {
+      period: new Date(evt.currentTarget.value),
+      open: true,
+    };
+
+    scheduleDays.push(nextOpen);
   }
 
   function startApp() {
