@@ -1,0 +1,28 @@
+body {
+  font-family: Arial, Helvetica, sans-serif
+}
+
+h1 {
+  text-align: center;
+}
+
+/* .scheduler {
+  float: left;
+} */
+
+.sd {
+  float: left;
+  border: 1px solid black;
+  border-radius: 8px;
+  margin: 8px;
+}
+
+.sd-header {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid black;
+}
+
+.sd-staffing {
+  padding: 8px;
+}
