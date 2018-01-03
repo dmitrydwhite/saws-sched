@@ -29,7 +29,7 @@ function sButton(type, id) {
 function AppExecute(firebase) {
   // Initialize vars
   var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
-  var scheduleDays = firebase.database().ref('/scheduleDays/');
+  var scheduleDays = firebase.database().ref('/scheduleDays/').orderByChild('period');
   var isAdmin;
 
 
