@@ -58,22 +58,26 @@ function AppExecute(firebase) {
 
     evt.currentTarget.setAttribute('disabled', true);
 
+    addDaysForm.id = 'create-days';
+
     addDaysForm.innerHTML = '' +
       '<label>Add a Date to Open</label><input type="date" ' +
       'value="' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1) + '"' +
-      '><button id="create-days">ADD</button>' +
+      '><button type="submit">ADD</button>' +
     '';
 
     evt.currentTarget.insertAdjacentElement('beforebegin', addDaysForm);
 
-    document.getElementById('create-days').addEventListener('click', addMoreOpenDays);
+    document.getElementById('create-days').addEventListener('submit', addMoreOpenDays);
   }
 
   function addMoreOpenDays(evt) {
     evt.preventDefault();
 
+    var nextDate = evt.currentTarget.getElementsByTagName('input')[0].value;
+
     var nextOpen = {
-      period: new Date(evt.currentTarget.value),
+      period: new Date(nextDate),
       open: true,
     };
 
