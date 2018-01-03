@@ -20,10 +20,13 @@
     };
     firebase.initializeApp(config);
   </script>
+  <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
   <script src="./scripts/app-main.js"></script>
 </head>
 <body>
   <h1>Silverton Area Warming Shelter Scheduler</h1>
+  <div id="firebaseui-auth-container"></div>
   <div id="scheduler">
       <div style="clear:both"></div>
   </div>

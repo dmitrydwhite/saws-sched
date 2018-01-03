@@ -152,11 +152,23 @@ function AppExecute(firebase) {
 
   // Check the user state
   firebase.auth().onAuthStateChanged((user) => {
-    if (!user) {
-      firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
-        .then(startApp);
-    } else {
+    if (user) {
+      document.getElementById('firebaseui-auth-container').setAttribute('visible', false);
       startApp();
+    } else {
+      // FirebaseUI config.
+      var uiConfig = {
+        signInSuccessUrl: '#',
+        signInOptions: [
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+        ],
+      };
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
     }
   });
 }
