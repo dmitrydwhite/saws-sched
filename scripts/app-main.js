@@ -66,12 +66,12 @@ function AppExecute(firebase) {
     var currUser = firebase.auth().currentUser;
     var updateObj = {};
 
-    updateObj[shiftType] = {
+    updateObj = {
       displayName: currUser.displayName.split(' ')[0] + currUser.displayName.split(' ')[1][1],
       userId: currUser.uid
     };
 
-    firebase.database().ref('scheduleDays/' + shiftDate).set(updateObj);
+    firebase.database().ref('scheduleDays/' + shiftDate + '/' + shiftType).set(updateObj);
   }
 
   function addMoreDays(evt) {
