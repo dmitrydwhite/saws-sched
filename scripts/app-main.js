@@ -50,7 +50,28 @@ function AppExecute(firebase) {
 
     document.getElementById('scheduler').innerHTML = markup;
 
+    Array.prototype.slice.call(null, document.getElementsByClassName('sign-up')).forEach(function (signupBtn) {
+      signupBtn.addEventListener('click', signMeUpForThis);
+    });
+
     document.getElementById('add-days').addEventListener('click', addMoreDays);
+  }
+
+  function signMeUpForThis(evt) {
+    evt.preventDefault();
+
+    var shift = evt.currentTarget;
+    var shiftType = shift.getAttribute('data-type');
+    var shiftDate = shift.getAttribute('data-id');
+    var currUser = firebase.auth().currentUser;
+    var updateObj = {};
+
+    updateObj[shiftType] = {
+      displayName: currUser.displayName.split(' ')[0] + currUser.displayName.split(' ')[1][1],
+      userId: currUser.uid
+    };
+
+    firebase.database().ref('scheduleDays/' + shiftDate).set(updateObj);
   }
 
   function addMoreDays(evt) {
