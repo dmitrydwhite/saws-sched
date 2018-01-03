@@ -4,7 +4,8 @@ var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc
 
 function AppExecute(firebase) {
   // Initialize vars
-  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
+  // var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
+  var admins = [];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
   var cUser;
@@ -33,7 +34,7 @@ function AppExecute(firebase) {
   function sButton(displayName, uid, type, id) {
     var detailString = 'data-id= "' + id + '" data-type="' + type + '"';
     var signupButton = '<button ' + detailString + ' class="sign-up">Sign Up</button>';
-    var justName = (uid !== cUser.uid || !isAdmin) ?
+    var justName = (uid !== cUser.uid && !isAdmin) ?
       displayName :
       displayName + '  <a ' + detailString + ' href="#" class="cancel-link">cancel</a>';
   
@@ -153,8 +154,8 @@ function AppExecute(firebase) {
   // Check the user state
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      document.getElementById('firebaseui-auth-container').setAttribute('visible', false);
       startApp();
+      document.getElementById('firebaseui-auth-container').style.display = 'none';
     } else {
       // FirebaseUI config.
       var uiConfig = {
@@ -168,6 +169,7 @@ function AppExecute(firebase) {
       // Initialize the FirebaseUI Widget using Firebase.
       var ui = new firebaseui.auth.AuthUI(firebase.auth());
       // The start method will wait until the DOM is loaded.
+      document.getElementById('firebaseui-auth-container').style.display = 'initial';
       ui.start('#firebaseui-auth-container', uiConfig);
     }
   });
