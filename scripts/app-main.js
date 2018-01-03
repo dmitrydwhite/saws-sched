@@ -67,7 +67,7 @@ function AppExecute(firebase) {
     var updateObj = {};
 
     updateObj = {
-      displayName: currUser.displayName.split(' ')[0] + currUser.displayName.split(' ')[1][1],
+      displayName: currUser.displayName.split(' ')[0] + ' ' + currUser.displayName.split(' ')[1][0],
       userId: currUser.uid
     };
 
