@@ -1,29 +1,5 @@
-function shelterDay(d) {
-  var days = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var p = (d.period && new Date(d.period.replace('-0', '-'))) || {};
-
-  return '' +
-    '<div class="sd" data-id="' + d.id + '">' +
-      '<div class="sd-header">' +
-        '<div class="sd-dow">' + days[p.getDay()] + '</div>' +
-        '<div class="sd-date">' + months[p.getMonth()] + ' ' + p.getDate() + '</div>' +
-        '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
-      '</div>' +
-      '<div class="sd-staffing">' +
-        '<div class="sd-breakfast">Breakfast: ' + (d.brk.displayName || sButton('brk', d.id)) + '</div>' +
-        '<div class="sd-ev-lead">Evening Lead: ' + (d.evLead.displayName || sButton('evLead', d.id)) + '</div>' +
-        '<div class="sd-ev-second">Evening Second: ' + (d.evSecond.displayName || sButton('evSecond', d.id)) + '</div>' +
-        '<div class="sd-ov-lead">Overnight Lead: ' + (d.ovLead.displayName || sButton('ovLead', d.id)) + '</div>' +
-        '<div class="sd-ov-second">Overnight Second: ' + (d.ovSecond.displayName || sButton('ovSecond', d.id)) + '</div>' +
-      '</div>' +
-    '</div>' +
-  '';
-}
-
-function sButton(type, id) {
-  return '<button data-id= "' + id + '" class="sign-up" data-type="' + type + '">Sign Up</button>';
-}
+var days = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 
 function AppExecute(firebase) {
@@ -31,19 +7,56 @@ function AppExecute(firebase) {
   var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
+  var cUser;
 
+  function shelterDay(d) {
+    var p = (d.period && new Date(d.period.replace('-0', '-'))) || {};
+  
+    return '' +
+      '<div class="sd" data-id="' + d.id + '">' +
+        '<div class="sd-header">' +
+          '<div class="sd-dow">' + days[p.getDay()] + '</div>' +
+          '<div class="sd-date">' + months[p.getMonth()] + ' ' + p.getDate() + '</div>' +
+          '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
+        '</div>' +
+        '<div class="sd-staffing">' +
+        '<div class="sd-ev-lead">' + d.evLead.displayText + ': ' + sButton(d.evLead.displayName, d.evLead.volId, 'evLead', d.id) + '</div>' +
+        '<div class="sd-ev-second">' + d.evSecond.displayText + ': ' + sButton(d.evSecond.displayName, d.evSecond.volId, 'evSecond', d.id) + '</div>' +
+        '<div class="sd-ov-lead">' + d.ovLead.displayText + ': ' + sButton(d.ovLead.displayName, d.ovLead.volId, 'ovLead', d.id) + '</div>' +
+        '<div class="sd-ov-second">' + d.ovSecond.displayText + ': ' + sButton(d.ovSecond.displayName, d.ovSecond.volId, 'ovSecond', d.id) + '</div>' +
+        '<div class="sd-breakfast">' + d.brk.displayText + ': ' + sButton(d.brk.displayName, d.brk.volId, 'brk', d.id) + '</div>' +
+        '</div>' +
+      '</div>' +
+    '';
+  }
 
-
+  function sButton(displayName, uid, type, id) {
+    var detailString = 'data-id= "' + id + '" data-type="' + type + '"';
+    var signupButton = '<button ' + detailString + ' class="sign-up">Sign Up</button>';
+    var justName = (uid !== cUser.uid || !isAdmin) ?
+      displayName :
+      displayName + '  <a ' + detailString + ' href="#" class="cancel-link">cancel</a>';
+  
+    return displayName ? justName : signupButton;
+  }
 
   function showDays(dayz) {
+    var dayItems = [];
     var markup = '';
 
     dayz.forEach(function (sDay) {
       var d = sDay.exportVal();
 
-      d.id = sDay.key;
-      markup += d && shelterDay(d);
+      if (d) {
+        d.id = sDay.key;
+        dayItems.push(d);
+      }
     });
+
+    markup = dayItems
+      .sort(function (a, b) { return a.order > b.order; })
+      .map(function (dayObj) { return shelterDay(dayObj); })
+      .join('');
 
     markup += isAdmin ?
       '<button id="add-days">OPEN MORE DAYS</button>' : '';
@@ -54,7 +67,21 @@ function AppExecute(firebase) {
       signupBtn.addEventListener('click', signMeUpForThis);
     });
 
+    Array.prototype.slice.call(document.getElementsByClassName('cancel-link')).forEach(function (cancelLink) {
+      cancelLink.addEventListener('click', cancelUser);
+    });
+
     document.getElementById('add-days').addEventListener('click', addMoreDays);
+  }
+
+  function cancelUser(evt) {
+    evt.preventDefault();
+
+    var shift = evt.currentTarget;
+    var shiftType = shift.getAttribute('data-type');
+    var shiftDate = shift.getAttribute('data-id');
+
+    firebase.database().ref('scheduleDays/' + shiftDate + '/' + shiftType).update({ volId: '', displayName: '' });
   }
 
   function signMeUpForThis(evt) {
@@ -63,15 +90,12 @@ function AppExecute(firebase) {
     var shift = evt.currentTarget;
     var shiftType = shift.getAttribute('data-type');
     var shiftDate = shift.getAttribute('data-id');
-    var currUser = firebase.auth().currentUser;
-    var updateObj = {};
-
-    updateObj = {
-      displayName: currUser.displayName.split(' ')[0] + ' ' + currUser.displayName.split(' ')[1][0],
-      userId: currUser.uid
+    var updateObj = {
+      displayName: cUser.displayName.split(' ')[0] + ' ' + cUser.displayName.split(' ')[1][0],
+      volId: cUser.uid
     };
 
-    firebase.database().ref('scheduleDays/' + shiftDate + '/' + shiftType).set(updateObj);
+    firebase.database().ref('scheduleDays/' + shiftDate + '/' + shiftType).update(updateObj);
   }
 
   function addMoreDays(evt) {
@@ -96,23 +120,32 @@ function AppExecute(firebase) {
   function addMoreOpenDays(evt) {
     evt.preventDefault();
 
-    var nextDate = evt.currentTarget.getElementsByTagName('input')[0].value;
+    var nextDate = evt.currentTarget.getElementsByTagName('input')[0].value.replace('-0', '-');
+    var nextDateObj = new Date(nextDate);
 
     var nextOpen = {
+      order: nextDateObj.valueOf(),
       period: nextDate,
       open: true,
-      brk: { displayName: '', userId: '' },
-      evLead: { displayName: '', userId: '' },
-      evSecond: { displayName: '', userId: '' },
-      ovLead: { displayName: '', userId: '' },
-      ovSecond: { displayName: '', userId: '' },
+      brk: {
+        displayName: '',
+        userId: '',
+        displayText: 'Breakfast on ' + months[nextDateObj.getMonth()] + ' ' + (nextDateObj.getDate() + 1),
+        volId: '',
+      },
+      evLead: { displayName: '', displayText: 'Evening Lead', volId: '' },
+      evSecond: { displayName: '', displayText: 'Evening Second', volId: '' },
+      ovLead: { displayName: '', displayText: 'Overnight Lead', volId: '' },
+      ovSecond: { displayName: '', displayText: 'Overnight Second', volId: '' },
     };
 
     scheduleDays.push(nextOpen);
   }
 
   function startApp() {
-    isAdmin = firebase.auth().currentUser && admins.indexOf(firebase.auth().currentUser.uid) > -1;
+    cUser = firebase.auth().currentUser;
+
+    isAdmin = cUser && admins.indexOf(cUser.uid) > -1;
 
     scheduleDays.on('value', showDays);
   }
