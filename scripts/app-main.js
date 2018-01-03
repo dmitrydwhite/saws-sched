@@ -1,7 +1,7 @@
 function shelterDay(d) {
   var days = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var p = (d.period && new Date(d.period)) || {};
+  var p = (d.period && new Date(d.period.replace('-0', '-'))) || {};
 
   return '' +
     '<div class="sd" data-id="' + d.id + '">' +
