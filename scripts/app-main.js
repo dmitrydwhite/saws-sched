@@ -11,11 +11,11 @@ function shelterDay(d) {
         '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
       '</div>' +
       '<div class="sd-staffing">' +
-        '<div class="sd-breakfast">Breakfast: ' + (d.brk || sButton('brk', d.id)) + '</div>' +
-        '<div class="sd-ev-lead">Evening Lead: ' + (d.evLead || sButton('evLead', d.id)) + '</div>' +
-        '<div class="sd-ev-second">Evening Second: ' + (d.evSecond || sButton('evSecond', d.id)) + '</div>' +
-        '<div class="sd-ov-lead">Overnight Lead: ' + (d.ovLead || sButton('ovLead', d.id)) + '</div>' +
-        '<div class="sd-ov-second">Overnight Second: ' + (d.ovSecond || sButton('ovSecond', d.id)) + '</div>' +
+        '<div class="sd-breakfast">Breakfast: ' + (d.brk.displayName || sButton('brk', d.id)) + '</div>' +
+        '<div class="sd-ev-lead">Evening Lead: ' + (d.evLead.displayName || sButton('evLead', d.id)) + '</div>' +
+        '<div class="sd-ev-second">Evening Second: ' + (d.evSecond.displayName || sButton('evSecond', d.id)) + '</div>' +
+        '<div class="sd-ov-lead">Overnight Lead: ' + (d.ovLead.displayName || sButton('ovLead', d.id)) + '</div>' +
+        '<div class="sd-ov-second">Overnight Second: ' + (d.ovSecond.displayName || sButton('ovSecond', d.id)) + '</div>' +
       '</div>' +
     '</div>' +
   '';
@@ -41,6 +41,7 @@ function AppExecute(firebase) {
     dayz.forEach(function (sDay) {
       var d = sDay.exportVal();
 
+      d.id = sDay.key;
       markup += d && shelterDay(d);
     });
 
@@ -61,7 +62,7 @@ function AppExecute(firebase) {
     addDaysForm.id = 'create-days';
 
     addDaysForm.innerHTML = '' +
-      '<label>Add a Date to Open</label><input type="date" ' +
+      '<label>Add a Date to Open</label><input required type="date" ' +
       'value="' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1) + '"' +
       '><button type="submit">ADD</button>' +
     '';
@@ -79,11 +80,11 @@ function AppExecute(firebase) {
     var nextOpen = {
       period: nextDate,
       open: true,
-      brk: '',
-      evLead: '',
-      evSecond: '',
-      ovLead: '',
-      ovSecond: '',
+      brk: { displayName: '', userId: '' },
+      evLead: { displayName: '', userId: '' },
+      evSecond: { displayName: '', userId: '' },
+      ovLead: { displayName: '', userId: '' },
+      ovSecond: { displayName: '', userId: '' },
     };
 
     scheduleDays.push(nextOpen);
