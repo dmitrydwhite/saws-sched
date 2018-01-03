@@ -1,7 +1,7 @@
 function shelterDay(d) {
   var days = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var p = d.period || {};
+  var p = (d.period && new Date(d.period)) || {};
 
   return '' +
     '<div class="sd" data-id="' + d.id + '">' +
@@ -77,7 +77,7 @@ function AppExecute(firebase) {
     var nextDate = evt.currentTarget.getElementsByTagName('input')[0].value;
 
     var nextOpen = {
-      period: new Date(nextDate),
+      period: nextDate,
       open: true,
     };
 
