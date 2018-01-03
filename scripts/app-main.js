@@ -50,7 +50,7 @@ function AppExecute(firebase) {
 
     document.getElementById('scheduler').innerHTML = markup;
 
-    Array.prototype.slice.call(null, document.getElementsByClassName('sign-up')).forEach(function (signupBtn) {
+    Array.prototype.slice.call(document.getElementsByClassName('sign-up')).forEach(function (signupBtn) {
       signupBtn.addEventListener('click', signMeUpForThis);
     });
 
