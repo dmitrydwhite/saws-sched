@@ -79,6 +79,11 @@ function AppExecute(firebase) {
     var nextOpen = {
       period: nextDate,
       open: true,
+      brk: '',
+      evLead: '',
+      evSecond: '',
+      ovLead: '',
+      ovSecond: '',
     };
 
     scheduleDays.push(nextOpen);
