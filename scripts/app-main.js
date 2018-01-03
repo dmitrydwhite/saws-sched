@@ -11,11 +11,11 @@ function shelterDay(d) {
         '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
       '</div>' +
       '<div class="sd-staffing">' +
-        '<div class="sd-breakfast">Breakfast: ' + d.brk || sButton('brk', d.id) + '</div>' +
-        '<div class="sd-ev-lead">Evening Lead: ' + d.evLead || sButton('evLead', d.id) + '</div>' +
-        '<div class="sd-ev-second">Evening Second: ' + d.evSecond || sButton('evSecond', d.id) + '</div>' +
-        '<div class="sd-ov-lead">Overnight Lead: ' + d.ovLead || sButton('ovLead', d.id) + '</div>' +
-        '<div class="sd-ov-second">Overnight Second: ' + d.ovSecond || sButton('ovSecond', d.id) + '</div>' +
+        '<div class="sd-breakfast">Breakfast: ' + (d.brk || sButton('brk', d.id)) + '</div>' +
+        '<div class="sd-ev-lead">Evening Lead: ' + (d.evLead || sButton('evLead', d.id)) + '</div>' +
+        '<div class="sd-ev-second">Evening Second: ' + (d.evSecond || sButton('evSecond', d.id)) + '</div>' +
+        '<div class="sd-ov-lead">Overnight Lead: ' + (d.ovLead || sButton('ovLead', d.id)) + '</div>' +
+        '<div class="sd-ov-second">Overnight Second: ' + (d.ovSecond || sButton('ovSecond', d.id)) + '</div>' +
       '</div>' +
     '</div>' +
   '';
