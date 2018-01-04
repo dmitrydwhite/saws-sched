@@ -10,6 +10,7 @@ h1 {
   border: 1px solid black;
   border-radius: 8px;
   margin: 8px;
+  position: relative;
 }
 
 .sd-header {
@@ -19,8 +20,9 @@ h1 {
 }
 
 .close-button {
-  position: fixed;
-  right: 28px;
+  position: absolute;
+  right: 8px;
+  cursor: pointer;
 }
 
 i.material-icons {
@@ -40,8 +42,10 @@ i.material-icons:hover {
   line-height: 26px;
 }
 
-.add-more-days-container {
+.button-container {
   text-align: center;
+  height: 32px;
+  line-height: 32px;
 }
 
 button {
@@ -49,12 +53,22 @@ button {
   height: 18px;
 }
 
+.shift-detail {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: center;
+  border-radius: 8px;
+  margin: 8px;
+}
+
+.shift-detail p {
+  margin: 0;
+  height: 22px;
+  line-height: 22px;
+}
+
 @media (min-width: 490px) {
   #scheduler {
     margin: 0 20%;
-  }
-
-  .close-button {
-    right: 24%;
   }
 }

@@ -11,6 +11,7 @@ function AppExecute(firebase) {
   var cUser;
   var showAllDays;
   var DAYS_REF = [];
+  var showMyDays = false;
 
   function shelterDay(d) {
     var p = (d.period && new Date(d.period.replace('-0', '-'))) || {};
@@ -20,7 +21,9 @@ function AppExecute(firebase) {
         '<div class="sd-header">' +
           (isAdmin ?
             '<div data-current="' +
-              d.open + '" data-id="' + d.id + '" class="close-button"><i class="material-icons">thumb_down</i></div>' :
+              d.open + '" data-id="' + d.id + '" class="close-button"><i class="material-icons">'+
+              (d.open ? 'thumb_down' : 'thumb_up') +
+              '</i></div>' :
             '') +
           '<div class="sd-dow">' + days[p.getDay()] + '</div>' +
           '<div class="sd-date">' + months[p.getMonth()] + ' ' + p.getDate() + '</div>' +
@@ -47,36 +50,46 @@ function AppExecute(firebase) {
     return displayName ? justName : signupButton;
   }
 
-  function showDays(dayz) {
+  function translateUpdatedDays(dayz) {
+    DAYS_REF = [];
+
+    dayz.forEach(function (day) {
+      d = day.exportVal();
+      d.id = day.key;
+      DAYS_REF.push(d);
+    });
+
+    if (showMyDays) {
+      showUserShifts();
+    } else {
+      showDays();
+    }
+  }
+
+  function showDays() {
     var rightNow = Date.now();
     var dayItems = [];
     var markup = '';
 
-    DAYS_REF = [];
+    showMyDays = false;
 
-    // Store the updated value locally for some manipulation protections later on.
-    dayz.forEach(function (sDay) {
-      var r = sDay.exportVal();
-
-      r.id = sDay.key;
-      DAYS_REF.push(r);
-    });
-
-    dayz.forEach(function (sDay) {
-      var d = sDay.exportVal();
+    DAYS_REF.forEach(function (d) {
+      // var d = sDay.exportVal();
       var dayToCome = new Date(d.period).valueOf();
 
-      if (d && dayToCome > rightNow && d.open) {
-        d.id = sDay.key;
+      if (showAllDays || (d && dayToCome > rightNow && d.open)) {
+        // d.id = sDay.key;
         dayItems.push(d);
       }
     });
 
+    // Show all the sheduled days that meet the criteria.
     markup = dayItems
       .sort(function (a, b) { return a.order > b.order; })
       .map(function (dayObj) { return shelterDay(dayObj); })
       .join('');
 
+    // Prepend the messaging.
     if (dayItems.length) {
       markup = '' +
         '<p>The Silverton Area Warming shelter is now activated for the following dates. Please select the shift that works best for you. Thank you!<p>' +
@@ -87,28 +100,46 @@ function AppExecute(firebase) {
         markup;
     }
 
+    // Add the Admin tools.
     if (isAdmin) {
       markup = markup +
-      '<div class="add-more-days-container"><button id="add-days">OPEN MORE DAYS</button></div>' +
+      '<div class="button-container"><button id="add-days">OPEN MORE DAYS</button></div>' +
+      '<div class="button-container"><button id="show-all-days">' +
+        (showAllDays ?
+          'HIDE' : 'SHOW') +
+        ' CLOSED AND PAST DATES</button></div>' +
       '';
     }
 
+    // Add the Show My Shifts button for everybody.
+    markup = markup +
+      '<div class="button-container"><button id="show-my-shifts" data-uid="' + cUser.uid + '">SHOW MY SHIFTS</button></div>';
+
+    // Add the full markup string to the scheduler element:
     document.getElementById('scheduler').innerHTML = markup;
 
+    // Set listeners on each individual interaction...
+    document.getElementById('show-my-shifts').addEventListener('click', showUserShifts);
     Array.prototype.slice.call(document.getElementsByClassName('sign-up')).forEach(function (signupBtn) {
       signupBtn.addEventListener('click', signMeUpForThis);
     });
-
     Array.prototype.slice.call(document.getElementsByClassName('cancel-link')).forEach(function (cancelLink) {
       cancelLink.addEventListener('click', cancelUser);
     });
 
+    // Set listeners on admin tools.
     if (isAdmin) {
       document.getElementById('add-days').addEventListener('click', addMoreDays);
+      document.getElementById('show-all-days').addEventListener('click', toggleShowAllDays);
       Array.prototype.slice.call(document.getElementsByClassName('close-button')).forEach(function (closer) {
         closer.addEventListener('click', toggleOpenState);
       });
     }
+  }
+
+  function toggleShowAllDays() {
+    showAllDays = !showAllDays;
+    showDays();
   }
 
   function toggleOpenState(evt) {
@@ -125,6 +156,14 @@ function AppExecute(firebase) {
   }
 
   function notifyShiftMembersOfClosing(dateId) {
+    if (console) console.log('notifying shift members of closing');
+    /**
+     * NO OP; RESERVED FOR TEXT MESSAGE INTEGRATION.
+     */
+  }
+
+  function notifyShiftMembersOfReOpening(dateId) {
+    if (console) console.log('notifying previous shift members of opening');
     /**
      * NO OP; RESERVED FOR TEXT MESSAGE INTEGRATION.
      */
@@ -165,7 +204,7 @@ function AppExecute(firebase) {
     addDaysForm.innerHTML = '' +
       '<label>Add a Date to Open</label><input required type="date" ' +
       'value="' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + (today.getDate() + 1) + '"' +
-      '><button type="submit">ADD</button>' +
+      '><button type="submit">OPEN</button>' +
     '';
 
     evt.currentTarget.insertAdjacentElement('beforebegin', addDaysForm);
@@ -199,9 +238,64 @@ function AppExecute(firebase) {
     if (alreadyHaveDate > -1) {
       var dayToUpdate = DAYS_REF[alreadyHaveDate].id;
       firebase.database().ref('scheduleDays/' + dayToUpdate).update({ open: true });
+      notifyShiftMembersOfReOpening(dayToUpdate);
     } else {
       scheduleDays.push(nextOpen);
     }
+  }
+
+  function showUserShifts() {
+    var shiftOrder = ['evLead', 'evSecond', 'ovLead', 'ovSecond', 'brk'];
+    var rightNow = Date.now();
+    var markup = '';
+    var userShifts = [];
+
+    showMyDays = true;
+
+    DAYS_REF.forEach(function (sDay) {
+      if (new Date(sDay.period).valueOf() > rightNow && sDay.open) {
+        shiftOrder.forEach(function (shift) {
+          if (sDay[shift].volId === cUser.uid) {
+            var shiftRefObj = new Object(sDay[shift]);
+            var shiftRefDate = new Date(sDay.period);
+
+            shiftRefObj.id = sDay.id;
+            shiftRefObj.type = shift;
+            shiftRefObj.dateText = '' + months[shiftRefDate.getMonth()] + ' ' + shiftRefDate.getDate();
+            shiftRefObj.sortOrder = '' + shiftRefDate.valueOf() + shiftOrder.indexOf('shift');
+
+            userShifts.push(shiftRefObj);
+          }
+        });
+      }
+    });
+
+    markup = userShifts.length ? userShifts
+      .sort(function (a, b) { return a.sortOrder > b.sortOrder; })
+      .map(function (shiftRef) { return shiftMarkup(shiftRef); })
+      .join('') :
+      '<p>No shifts scheduled</p>';
+
+    markup += '<div class="button-container"><button id="show-overall-sched">SHOW SHELTER SCHEDULE</button></div>';
+
+    document.getElementById('scheduler').innerHTML = markup;
+
+
+    document.getElementById('show-overall-sched').addEventListener('click', showDays);
+    Array.prototype.slice.call(document.getElementsByClassName('shift-detail-cancel'))
+      .forEach(function (cancelLink) {
+        cancelLink.addEventListener('click', cancelUser);
+      });
+  }
+
+  function shiftMarkup(shift) {
+    return '' +
+      '<div class="shift-detail"><p>' + shift.displayName + ' is scheduled for</p><p>' + shift.displayText +
+        '</p><p>for the shelter night of ' + shift.dateText +
+        ' <a href="#" data-id="' + shift.id + '" data-type="' + shift.type + '"' +
+        ' class="shift-detail-cancel">cancel</a>' +
+      '</p></div>' +
+      '';
   }
 
   function setLoginDivTo(state) {
@@ -221,7 +315,7 @@ function AppExecute(firebase) {
 
     isAdmin = cUser && admins.indexOf(cUser.uid) > -1;
 
-    scheduleDays.on('value', showDays);
+    scheduleDays.on('value', translateUpdatedDays);
   }
 
   // Check the user state
