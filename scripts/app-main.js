@@ -4,11 +4,13 @@ var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc
 
 function AppExecute(firebase) {
   // Initialize vars
-  // var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
-  var admins = [];
+  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
+  // var admins = [];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
   var cUser;
+  var showAllDays;
+  var DAYS_REF = [];
 
   function shelterDay(d) {
     var p = (d.period && new Date(d.period.replace('-0', '-'))) || {};
@@ -16,6 +18,10 @@ function AppExecute(firebase) {
     return '' +
       '<div class="sd" data-id="' + d.id + '">' +
         '<div class="sd-header">' +
+          (isAdmin ?
+            '<div data-current="' +
+              d.open + '" data-id="' + d.id + '" class="close-button"><i class="material-icons">thumb_down</i></div>' :
+            '') +
           '<div class="sd-dow">' + days[p.getDay()] + '</div>' +
           '<div class="sd-date">' + months[p.getMonth()] + ' ' + p.getDate() + '</div>' +
           '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
@@ -42,13 +48,25 @@ function AppExecute(firebase) {
   }
 
   function showDays(dayz) {
+    var rightNow = Date.now();
     var dayItems = [];
     var markup = '';
 
+    DAYS_REF = [];
+
+    // Store the updated value locally for some manipulation protections later on.
+    dayz.forEach(function (sDay) {
+      var r = sDay.exportVal();
+
+      r.id = sDay.key;
+      DAYS_REF.push(r);
+    });
+
     dayz.forEach(function (sDay) {
       var d = sDay.exportVal();
+      var dayToCome = new Date(d.period).valueOf();
 
-      if (d) {
+      if (d && dayToCome > rightNow && d.open) {
         d.id = sDay.key;
         dayItems.push(d);
       }
@@ -59,8 +77,21 @@ function AppExecute(firebase) {
       .map(function (dayObj) { return shelterDay(dayObj); })
       .join('');
 
-    markup += isAdmin ?
-      '<button id="add-days">OPEN MORE DAYS</button>' : '';
+    if (dayItems.length) {
+      markup = '' +
+        '<p>The Silverton Area Warming shelter is now activated for the following dates. Please select the shift that works best for you. Thank you!<p>' +
+        markup;
+    } else {
+      markup = '' +
+        '<p>The Silverton Area Warming shelter currently has no open dates scheduled.</p>' +
+        markup;
+    }
+
+    if (isAdmin) {
+      markup = markup +
+      '<div class="add-more-days-container"><button id="add-days">OPEN MORE DAYS</button></div>' +
+      '';
+    }
 
     document.getElementById('scheduler').innerHTML = markup;
 
@@ -72,7 +103,31 @@ function AppExecute(firebase) {
       cancelLink.addEventListener('click', cancelUser);
     });
 
-    document.getElementById('add-days').addEventListener('click', addMoreDays);
+    if (isAdmin) {
+      document.getElementById('add-days').addEventListener('click', addMoreDays);
+      Array.prototype.slice.call(document.getElementsByClassName('close-button')).forEach(function (closer) {
+        closer.addEventListener('click', toggleOpenState);
+      });
+    }
+  }
+
+  function toggleOpenState(evt) {
+    evt.preventDefault();
+
+    var btn = evt.currentTarget;
+
+    var date = btn.getAttribute('data-id');
+    var isOpen = btn.getAttribute('data-current') === 'true';
+
+    firebase.database().ref('scheduleDays/' + date).update({ open: !isOpen });
+
+    if (isOpen) { notifyShiftMembersOfClosing(date); }
+  }
+
+  function notifyShiftMembersOfClosing(dateId) {
+    /**
+     * NO OP; RESERVED FOR TEXT MESSAGE INTEGRATION.
+     */
   }
 
   function cancelUser(evt) {
@@ -121,7 +176,7 @@ function AppExecute(firebase) {
   function addMoreOpenDays(evt) {
     evt.preventDefault();
 
-    var nextDate = evt.currentTarget.getElementsByTagName('input')[0].value.replace('-0', '-');
+    var nextDate = evt.currentTarget.getElementsByTagName('input')[0].value.replace(/-0?/g, '/');
     var nextDateObj = new Date(nextDate);
 
     var nextOpen = {
@@ -139,8 +194,26 @@ function AppExecute(firebase) {
       ovLead: { displayName: '', displayText: 'Overnight Lead', volId: '' },
       ovSecond: { displayName: '', displayText: 'Overnight Second', volId: '' },
     };
+    var alreadyHaveDate = DAYS_REF.map(function (day) { return day.period; }).indexOf(nextOpen.period);
 
-    scheduleDays.push(nextOpen);
+    if (alreadyHaveDate > -1) {
+      var dayToUpdate = DAYS_REF[alreadyHaveDate].id;
+      firebase.database().ref('scheduleDays/' + dayToUpdate).update({ open: true });
+    } else {
+      scheduleDays.push(nextOpen);
+    }
+  }
+
+  function setLoginDivTo(state) {
+    var loginDiv = document.getElementById('firebaseui-auth-container');
+
+    if (loginDiv) {
+      loginDiv.style.display = state;
+    } else {
+      window.addEventListener('load', function () {
+        document.getElementById('firebaseui-auth-container').style.display = state;
+      });
+    }
   }
 
   function startApp() {
@@ -155,7 +228,7 @@ function AppExecute(firebase) {
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       startApp();
-      document.getElementById('firebaseui-auth-container').style.display = 'none';
+      setLoginDivTo('none');
     } else {
       // FirebaseUI config.
       var uiConfig = {
@@ -169,7 +242,7 @@ function AppExecute(firebase) {
       // Initialize the FirebaseUI Widget using Firebase.
       var ui = new firebaseui.auth.AuthUI(firebase.auth());
       // The start method will wait until the DOM is loaded.
-      document.getElementById('firebaseui-auth-container').style.display = 'initial';
+      setLoginDivTo('initial');
       ui.start('#firebaseui-auth-container', uiConfig);
     }
   });

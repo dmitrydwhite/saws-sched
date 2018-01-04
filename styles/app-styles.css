@@ -6,12 +6,7 @@ h1 {
   text-align: center;
 }
 
-/* .scheduler {
-  float: left;
-} */
-
 .sd {
-  float: left;
   border: 1px solid black;
   border-radius: 8px;
   margin: 8px;
@@ -23,6 +18,43 @@ h1 {
   border-bottom: 1px solid black;
 }
 
+.close-button {
+  position: fixed;
+  right: 28px;
+}
+
+i.material-icons {
+  color: lightgray;
+}
+
+i.material-icons:hover {
+  color: black;
+}
+
 .sd-staffing {
   padding: 8px;
+}
+
+.sd-staffing > div {
+  height: 26px;
+  line-height: 26px;
+}
+
+.add-more-days-container {
+  text-align: center;
+}
+
+button {
+  border: 1px solid black;
+  height: 18px;
+}
+
+@media (min-width: 490px) {
+  #scheduler {
+    margin: 0 20%;
+  }
+
+  .close-button {
+    right: 24%;
+  }
 }
