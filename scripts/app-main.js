@@ -237,8 +237,12 @@ function AppExecute(firebase) {
 
     if (alreadyHaveDate > -1) {
       var dayToUpdate = DAYS_REF[alreadyHaveDate].id;
+
+      // Making this logic check here to avoid re-notifying someone if an admin accidentally
+      // tries to open an already-open day.
+      if (!DAYS_REF[alreadyHaveDate].open) { notifyShiftMembersOfReOpening(dayToUpdate); }
+
       firebase.database().ref('scheduleDays/' + dayToUpdate).update({ open: true });
-      notifyShiftMembersOfReOpening(dayToUpdate);
     } else {
       scheduleDays.push(nextOpen);
     }
@@ -318,11 +322,55 @@ function AppExecute(firebase) {
     scheduleDays.on('value', translateUpdatedDays);
   }
 
+  function addUserPhone(evt) {
+    
+    var userId = evt.currentTarget.getAttribute('data-id');
+    var userPhone = evt.currentTarget.getElementsByTagName('input')[0].value;
+    
+    if (userPhone) evt.preventDefault();
+
+    if (/^\d\d\d\d\d\d\d\d\d\d$/.test(userPhone)) {
+      firebase.database().ref('userPhones/' + userId).set(userPhone);
+      startApp();
+    } else {
+      evt.currentTarget.getElementsByTagName('input')[0].value = '';
+      evt.currentTarget.getElementsByTagName('input')[0].placeholder = '⚠️Invalid Phone Number⚠️';
+      evt.currentTarget.getElementsByTagName('input')[0].style.border = '1px solid red';
+    }
+  }
+
+  function verifyPhone(user) {
+    firebase.database().ref('userPhones/' + user.uid).once('value').then(function(userPhone) {
+      if (userPhone.exportVal()) {
+        startApp();
+      } else if (user.phoneNumber) {
+        firebase.database().ref('userPhones/' + user.uid).set(user.phoneNumber);
+        startApp();
+      } else {
+        var markup = '' +
+          '<form id="add-phone" data-id="' + user.uid +'">' +
+            '<p>You do not appear to have a phone number associated with your account.</p>' +
+            '<p>The Silverton Area Warming Shelter (SAWS) scheduling app requires you to provide a phone ' +
+            'number where you can receive SMS or text message reminders.</p>' +
+            '<p>SAWS will not share your phone number with any other entity, and will only use it to send SMS text reminders ' +
+            'for scheduled volunteer shifts.  Thank you!</p>' +
+            '<input style="margin: 4px;"  required type="tel" placeholder="Enter SMS Phone"/>' +
+            '<button type="submit">ADD PHONE</button>' +
+          '</form>' +
+        '';
+  
+        document.getElementById('scheduler').innerHTML = markup;
+  
+        document.getElementById('add-phone').addEventListener('submit', addUserPhone);
+      }
+    });
+  }
+
   // Check the user state
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      startApp();
       setLoginDivTo('none');
+      verifyPhone(user);
     } else {
       // FirebaseUI config.
       var uiConfig = {
