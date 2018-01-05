@@ -330,12 +330,16 @@ function AppExecute(firebase) {
     if (userPhone) evt.preventDefault();
 
     if (/^\d\d\d\d\d\d\d\d\d\d$/.test(userPhone)) {
-      firebase.database().ref('userPhones/' + userId).set(userPhone);
+      firebase.database().ref('userPhones/' + userId).set('+1' + userPhone);
       startApp();
     } else {
       evt.currentTarget.getElementsByTagName('input')[0].value = '';
-      evt.currentTarget.getElementsByTagName('input')[0].placeholder = '⚠️Invalid Phone Number⚠️';
+      evt.currentTarget.getElementsByTagName('input')[0].placeholder = '⚠️ Invalid Phone Number';
       evt.currentTarget.getElementsByTagName('input')[0].style.border = '1px solid red';
+      evt.currentTarget.getElementsByTagName('input')[0].addEventListener('focus', function () {
+        this.style.border = '1px solid lightgray';
+        this.placeholder = 'Enter SMS Phone';
+      });
     }
   }
 
@@ -353,9 +357,12 @@ function AppExecute(firebase) {
             '<p>The Silverton Area Warming Shelter (SAWS) scheduling app requires you to provide a phone ' +
             'number where you can receive SMS or text message reminders.</p>' +
             '<p>SAWS will not share your phone number with any other entity, and will only use it to send SMS text reminders ' +
-            'for scheduled volunteer shifts.  Thank you!</p>' +
-            '<input style="margin: 4px;"  required type="tel" placeholder="Enter SMS Phone"/>' +
-            '<button type="submit">ADD PHONE</button>' +
+            'for scheduled volunteer shifts.</p>' +
+            '<p>Please enter your ten-digit phone number using numbers only, without parentheses or dashes.  Thank you!</p>' +
+            '<div class="phone-input-container">' +
+              '<input style="margin: 4px;"  required type="tel" placeholder="Enter SMS Phone"/>' +
+            '</div>' +
+            '<div class="button-container"><button type="submit">ADD PHONE</button></div>' +
           '</form>' +
         '';
   

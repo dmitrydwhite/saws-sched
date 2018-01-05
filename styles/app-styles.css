@@ -67,6 +67,17 @@ button {
   line-height: 22px;
 }
 
+.phone-input-container {
+  text-align: center;
+}
+
+.phone-input-container > input {
+  width: 100%;
+  height: 32px;
+  line-height: 32px;
+  font-size: 28px;
+}
+
 @media (min-width: 490px) {
   #scheduler {
     margin: 0 20%;
