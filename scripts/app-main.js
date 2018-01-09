@@ -4,7 +4,7 @@ var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc
 
 function AppExecute(firebase) {
   // Initialize vars
-  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2'];
+  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2', 'CHI5mb6Q82V9OuI85inc2L5C8eG2'];
   // var admins = [];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
@@ -30,6 +30,7 @@ function AppExecute(firebase) {
           '<div class="sd-status">' + (d.open ? 'OPEN' : 'CLOSED') + '</div>' +
         '</div>' +
         '<div class="sd-staffing">' +
+        '<div class="sd-oncall-mgr">' + d.onCallMgr.displayText + ': ' + sButton(d.onCallMgr.displayName, d.onCallMgr.volId, 'onCallMgr', d.id) + '</div>' +
         '<div class="sd-ev-lead">' + d.evLead.displayText + ': ' + sButton(d.evLead.displayName, d.evLead.volId, 'evLead', d.id) + '</div>' +
         '<div class="sd-ev-second">' + d.evSecond.displayText + ': ' + sButton(d.evSecond.displayName, d.evSecond.volId, 'evSecond', d.id) + '</div>' +
         '<div class="sd-ov-lead">' + d.ovLead.displayText + ': ' + sButton(d.ovLead.displayName, d.ovLead.volId, 'ovLead', d.id) + '</div>' +
@@ -224,10 +225,10 @@ function AppExecute(firebase) {
       open: true,
       brk: {
         displayName: '',
-        userId: '',
         displayText: 'Breakfast on ' + months[nextDateObj.getMonth()] + ' ' + (nextDateObj.getDate() + 1),
         volId: '',
       },
+      onCallMgr: { displayName: '', displayText: 'On-Call Manager', volId: '' },
       evLead: { displayName: '', displayText: 'Evening Lead', volId: '' },
       evSecond: { displayName: '', displayText: 'Evening Second', volId: '' },
       ovLead: { displayName: '', displayText: 'Overnight Lead', volId: '' },
@@ -249,7 +250,7 @@ function AppExecute(firebase) {
   }
 
   function showUserShifts() {
-    var shiftOrder = ['evLead', 'evSecond', 'ovLead', 'ovSecond', 'brk'];
+    var shiftOrder = ['onCallMgr', 'evLead', 'evSecond', 'ovLead', 'ovSecond', 'brk'];
     var rightNow = Date.now();
     var markup = '';
     var userShifts = [];
