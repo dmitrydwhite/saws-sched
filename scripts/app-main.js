@@ -199,6 +199,7 @@ function AppExecute(firebase) {
     var today = new Date();
 
     evt.currentTarget.setAttribute('disabled', true);
+    evt.currentTarget.setAttribute('style', 'display: none;');
 
     addDaysForm.id = 'create-days';
 
