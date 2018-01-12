@@ -234,9 +234,9 @@ function AppExecute(firebase) {
       },
       onCallMgr: { displayName: '', displayText: 'On-Call Manager', volId: '' },
       evLead: { displayName: '', displayText: 'Evening Lead', volId: '' },
-      evSecond: { displayName: '', displayText: 'Evening Second', volId: '' },
+      evSecond: { displayName: '', displayText: 'Evening Volunteer', volId: '' },
       ovLead: { displayName: '', displayText: 'Overnight Lead', volId: '' },
-      ovSecond: { displayName: '', displayText: 'Overnight Second', volId: '' },
+      ovSecond: { displayName: '', displayText: 'Overnight Volunteer', volId: '' },
     };
     var alreadyHaveDate = DAYS_REF.map(function (day) { return day.period; }).indexOf(nextOpen.period);
 
