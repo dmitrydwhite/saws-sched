@@ -30,6 +30,8 @@ p.centered-msg {
   padding: 8px;
   text-align: center;
   border-bottom: 1px solid black;
+  background-color: #A8EAFF;
+  border-radius: 8px 8px 0 0;
 }
 
 .close-button {
@@ -39,7 +41,7 @@ p.centered-msg {
 }
 
 i.material-icons {
-  color: lightgray;
+  color: white;
 }
 
 i.material-icons:hover {
@@ -48,6 +50,14 @@ i.material-icons:hover {
 
 .sd-staffing {
   padding: 8px;
+}
+
+a.cancel-link {
+  color: red;
+}
+
+a.cancel-link:visited {
+  color: red;
 }
 
 .sd-staffing > div {
@@ -64,6 +74,8 @@ i.material-icons:hover {
 button {
   border: 1px solid black;
   height: 18px;
+  background-color: #10A4B2;
+  color: white;
 }
 
 .shift-detail {
@@ -89,6 +101,12 @@ button {
   height: 32px;
   line-height: 32px;
   font-size: 28px;
+  padding: 8px;
+  border: 1px solid lightgray;
+  text-align: center;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
 }
 
 @media (min-width: 490px) {

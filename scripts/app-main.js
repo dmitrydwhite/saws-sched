@@ -365,7 +365,7 @@ function AppExecute(firebase) {
             'for scheduled volunteer shifts.</p>' +
             '<p>Please enter your ten-digit phone number using numbers only, without parentheses or dashes.  Thank you!</p>' +
             '<div class="phone-input-container">' +
-              '<input style="margin: 4px;"  required type="tel" placeholder="Enter SMS Phone"/>' +
+              '<input required type="tel" placeholder="Enter SMS Phone"/>' +
             '</div>' +
             '<div class="button-container"><button type="submit">ADD PHONE</button></div>' +
           '</form>' +
