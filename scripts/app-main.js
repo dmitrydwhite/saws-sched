@@ -4,7 +4,7 @@ var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc
 
 function AppExecute(firebase) {
   // Initialize vars
-  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2', 'CHI5mb6Q82V9OuI85inc2L5C8eG2'];
+  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2', 'CHI5mb6Q82V9OuI85inc2L5C8eG2', 'VkD6EqlXOggGErT150dGlNUmH992'];
   // var admins = [];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
@@ -93,11 +93,12 @@ function AppExecute(firebase) {
     // Prepend the messaging.
     if (dayItems.length) {
       markup = '' +
-        '<p>The Silverton Area Warming shelter is now activated for the following dates. Please select the shift that works best for you. Thank you!<p>' +
+        '<p class="centered-msg">The Silverton Area Warming shelter is now activated for the following dates.</p>' +
+        '<p class="centered-msg">Please select the shift that works best for you. Thank you!</p>' +
         markup;
     } else {
       markup = '' +
-        '<p>The Silverton Area Warming shelter currently has no open dates scheduled.</p>' +
+        '<p class="centered-msg">The Silverton Area Warming shelter currently has no open dates scheduled.</p>' +
         markup;
     }
 

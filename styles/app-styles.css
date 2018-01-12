@@ -15,6 +15,10 @@ p {
   padding-bottom: 88px;
 }
 
+p.centered-msg {
+  text-align: center;
+}
+
 .sd {
   border: 1px solid black;
   border-radius: 8px;
