@@ -177,7 +177,9 @@ function AppExecute(firebase) {
     var shiftType = shift.getAttribute('data-type');
     var shiftDate = shift.getAttribute('data-id');
 
-    firebase.database().ref('scheduleDays/' + shiftDate + '/' + shiftType).update({ volId: '', displayName: '' });
+    firebase.database()
+      .ref('scheduleDays/' + shiftDate + '/' + shiftType)
+      .update({ smsReminderSent: false, volId: '', displayName: '' });
   }
 
   function signMeUpForThis(evt) {
@@ -332,7 +334,7 @@ function AppExecute(firebase) {
     if (userPhone) evt.preventDefault();
 
     if (/^\d\d\d\d\d\d\d\d\d\d$/.test(userPhone)) {
-      firebase.database().ref('userPhones/' + userId).set('+1' + userPhone);
+      firebase.database().ref('userPhones/' + userId).set('1' + userPhone);
       startApp();
     } else {
       evt.currentTarget.getElementsByTagName('input')[0].value = '';
