@@ -11,6 +11,21 @@ p {
   padding-right: 8px;
 }
 
+#info-bar {
+  color: white;
+  padding-left: 8px;
+  background-color: black;
+}
+
+#logout-link {
+  color: cyan;
+  padding-left: 18px;
+}
+
+#logout-link:visited {
+  color: cyan;
+}
+
 #scheduler {
   padding-bottom: 88px;
 }

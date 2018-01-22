@@ -10,6 +10,7 @@ function AppExecute(firebase) {
   var isAdmin;
   var cUser;
   var showAllDays;
+  var ui; // Placeholder for Firebase Authorization UI.
   var DAYS_REF = [];
   var showMyDays = false;
 
@@ -314,16 +315,40 @@ function AppExecute(firebase) {
       loginDiv.style.display = state;
     } else {
       window.addEventListener('load', function () {
-        document.getElementById('firebaseui-auth-container').style.display = state;
+        setLoginDivTo(state);
+      });
+    }
+  }
+
+  function logUserOut() {
+    firebase.auth().signOut();
+  }
+
+  function showUserBar(show) {
+    var userBar = document.getElementById('info-bar');
+    var loginText = cUser &&
+      '🔒 Logged in as ' + cUser.displayName.split(' ')[0] +
+      '<a href="#" id="logout-link">log out</a>';
+
+    if (userBar) {
+      if (show && loginText) {
+        userBar.innerHTML = loginText;
+  
+        document.getElementById('logout-link').addEventListener('click', logUserOut);
+      } else {
+        if (userBar) userBar.innerHTML = '';
+      }
+    } else {
+      window.addEventListener('load', function () {
+        showUserBar(show);
       });
     }
   }
 
   function startApp() {
-    cUser = firebase.auth().currentUser;
-
     isAdmin = cUser && admins.indexOf(cUser.uid) > -1;
 
+    showUserBar(true);
     scheduleDays.on('value', translateUpdatedDays);
   }
 
@@ -372,6 +397,7 @@ function AppExecute(firebase) {
         '';
   
         document.getElementById('scheduler').innerHTML = markup;
+        showUserBar(true);
   
         document.getElementById('add-phone').addEventListener('submit', addUserPhone);
       }
@@ -381,6 +407,8 @@ function AppExecute(firebase) {
   // Check the user state
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
+      cUser = firebase.auth().currentUser;
+
       setLoginDivTo('none');
       verifyPhone(user);
     } else {
@@ -392,12 +420,15 @@ function AppExecute(firebase) {
           firebase.auth.FacebookAuthProvider.PROVIDER_ID,
         ],
       };
+      var schedulerDiv = document.getElementById('scheduler');
 
       // Initialize the FirebaseUI Widget using Firebase.
-      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      ui = ui || new firebaseui.auth.AuthUI(firebase.auth());
       // The start method will wait until the DOM is loaded.
       setLoginDivTo('initial');
+      showUserBar(false);
       ui.start('#firebaseui-auth-container', uiConfig);
+      if (schedulerDiv) schedulerDiv.innerHTML = '';
     }
   });
 }
