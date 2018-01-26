@@ -4,8 +4,7 @@ var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc
 
 function AppExecute(firebase) {
   // Initialize vars
-  var admins = ['xLpwSqQqSfdWcBZDhhymNmp4qZD2', 'CHI5mb6Q82V9OuI85inc2L5C8eG2', 'VkD6EqlXOggGErT150dGlNUmH992'];
-  // var admins = [];
+  var admins = [];
   var scheduleDays = firebase.database().ref('/scheduleDays/');
   var isAdmin;
   var cUser;
@@ -346,14 +345,20 @@ function AppExecute(firebase) {
   }
 
   function startApp() {
-    isAdmin = cUser && admins.indexOf(cUser.uid) > -1;
-
-    showUserBar(true);
-    scheduleDays.on('value', translateUpdatedDays);
+    firebase.database().ref('admins/').on('value', function (adminsData) {
+      debugger;
+      adminsData.forEach(function (admin) {
+        var foundAdmin = admin.exportVal();
+        if (foundAdmin) { admins.push(foundAdmin); }
+      });
+      isAdmin = cUser && admins.indexOf(cUser.uid) > -1;
+  
+      showUserBar(true);
+      scheduleDays.on('value', translateUpdatedDays);
+    });
   }
 
   function addUserPhone(evt) {
-    
     var userId = evt.currentTarget.getAttribute('data-id');
     var userPhone = evt.currentTarget.getElementsByTagName('input')[0].value;
     
@@ -374,7 +379,7 @@ function AppExecute(firebase) {
   }
 
   function verifyPhone(user) {
-    firebase.database().ref('userPhones/' + user.uid).once('value').then(function(userPhone) {
+    firebase.database().ref('userPhones/' + user.uid).once('value').then(function (userPhone) {
       if (userPhone.exportVal()) {
         startApp();
       } else if (user.phoneNumber) {
@@ -405,7 +410,7 @@ function AppExecute(firebase) {
   }
 
   // Check the user state
-  firebase.auth().onAuthStateChanged((user) => {
+  firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
       cUser = firebase.auth().currentUser;
 
