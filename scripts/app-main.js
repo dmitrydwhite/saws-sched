@@ -346,7 +346,6 @@ function AppExecute(firebase) {
 
   function startApp() {
     firebase.database().ref('admins/').on('value', function (adminsData) {
-      debugger;
       adminsData.forEach(function (admin) {
         var foundAdmin = admin.exportVal();
         if (foundAdmin) { admins.push(foundAdmin); }
