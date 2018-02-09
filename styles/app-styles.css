@@ -82,7 +82,7 @@ a.cancel-link:visited {
 
 .button-container {
   text-align: center;
-  height: 32px;
+  min-height: 32px;
   line-height: 32px;
 }
 
