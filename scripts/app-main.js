@@ -68,7 +68,8 @@ function AppExecute(firebase) {
   }
 
   function showDays() {
-    var rightNow = Date.now();
+    var oneDayInMS = 1000 * 60 * 60 * 24;
+    var rightNow = Date.now() - oneDayInMS;
     var dayItems = [];
     var markup = '';
 
@@ -78,7 +79,7 @@ function AppExecute(firebase) {
       // var d = sDay.exportVal();
       var dayToCome = new Date(d.period).valueOf();
 
-      if (showAllDays || (d && dayToCome > rightNow && d.open)) {
+      if (showAllDays || (d && dayToCome >= rightNow && d.open)) {
         // d.id = sDay.key;
         dayItems.push(d);
       }
@@ -379,9 +380,12 @@ function AppExecute(firebase) {
 
   function verifyPhone(user) {
     firebase.database().ref('userPhones/' + user.uid).once('value').then(function (userPhone) {
-      if (userPhone.exportVal()) {
+      var storedPhone = userPhone.exportVal();
+      var needsToUpdate = storedPhone === 'LANDLINE';
+
+      if (storedPhone && !needsToUpdate) {
         startApp();
-      } else if (user.phoneNumber) {
+      } else if (user.phoneNumber && !needsToUpdate) {
         firebase.database().ref('userPhones/' + user.uid).set(user.phoneNumber);
         startApp();
       } else {
