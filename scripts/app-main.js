@@ -1,5 +1,6 @@
 var days = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+var oneDayInMS = 1000 * 60 * 60 * 24;
 
 
 function AppExecute(firebase) {
@@ -15,6 +16,8 @@ function AppExecute(firebase) {
 
   function shelterDay(d) {
     var p = (d.period && new Date(d.period.replace('-0', '-'))) || {};
+    var dinner = d.dinner || { displayText: 'Evening Meal' };
+    var dinnerText = dinner.displayText || 'Evening Meal';
   
     return '' +
       '<div class="sd" data-id="' + d.id + '">' +
@@ -31,6 +34,7 @@ function AppExecute(firebase) {
         '</div>' +
         '<div class="sd-staffing">' +
         '<div class="sd-oncall-mgr">' + d.onCallMgr.displayText + ': ' + sButton(d.onCallMgr.displayName, d.onCallMgr.volId, 'onCallMgr', d.id) + '</div>' +
+        '<div class="sd-dinner">' + dinnerText + ': ' + sButton(dinner.displayName, dinner.volId, 'dinner', d.id) + '</div>' +
         '<div class="sd-ev-lead">' + d.evLead.displayText + ': ' + sButton(d.evLead.displayName, d.evLead.volId, 'evLead', d.id) + '</div>' +
         '<div class="sd-ev-second">' + d.evSecond.displayText + ': ' + sButton(d.evSecond.displayName, d.evSecond.volId, 'evSecond', d.id) + '</div>' +
         '<div class="sd-ov-lead">' + d.ovLead.displayText + ': ' + sButton(d.ovLead.displayName, d.ovLead.volId, 'ovLead', d.id) + '</div>' +
@@ -68,7 +72,6 @@ function AppExecute(firebase) {
   }
 
   function showDays() {
-    var oneDayInMS = 1000 * 60 * 60 * 24;
     var rightNow = Date.now() - oneDayInMS;
     var dayItems = [];
     var markup = '';
@@ -95,7 +98,7 @@ function AppExecute(firebase) {
     if (dayItems.length) {
       markup = '' +
         '<p class="centered-msg">The Silverton Area Warming shelter is now activated for the following dates.</p>' +
-        '<p class="centered-msg">Please select the shift that works best for you. Thank you!</p>' +
+        '<p class="centered-msg">Please select the shift or task that works best for you. Thank you!</p>' +
         markup;
     } else {
       markup = '' +
@@ -234,6 +237,7 @@ function AppExecute(firebase) {
         volId: '',
       },
       onCallMgr: { displayName: '', displayText: 'On-Call Manager', volId: '' },
+      dinner: { displayName: '', displayText: 'Evening Meal', volId: '' },
       evLead: { displayName: '', displayText: 'Evening Lead', volId: '' },
       evSecond: { displayName: '', displayText: 'Evening Volunteer', volId: '' },
       ovLead: { displayName: '', displayText: 'Overnight Lead', volId: '' },
